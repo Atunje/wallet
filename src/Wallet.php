@@ -54,7 +54,7 @@
         /**
          * Credit
          *
-         * Credits the wallet
+         * Credits the wallet by creating a credit transaction and updating the wallet balance
          *
          * @return TransactionResponse
          */
@@ -82,7 +82,7 @@
         /**
          * Debit
          *
-         * Debits the wallet
+         * Debits the wallet by creating a debit transacton and updating the wallet balance
          *
          * @return TransactionResponse
          */
