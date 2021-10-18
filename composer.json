@@ -1,0 +1,17 @@
+{
+    "name": "nobelatunje/wallet",
+    "description": "Wallet - A simple Laravel Wallet Package",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Nobelatunje\\Wallet\\": "src/"
+        }
+    },
+    "authors": [{
+        "name": "Ademuyiwa Adetunji",
+        "email": "nobelatunje001@gmail.com"
+    }],
+    "minimum-stability": "dev",
+    "require": {}
+}
