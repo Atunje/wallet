@@ -35,11 +35,11 @@
 
                 if($type === self::TYPE_CREDIT) {
 
-                    $transaction->balance = $wallet->balance += $amount;
+                    $transaction->balance = $wallet->balance + $amount;
 
                 } else if($type === self::TYPE_DEBIT) {
 
-                    $transaction->balance = $wallet->balance -= $amount;
+                    $transaction->balance = $wallet->balance - $amount;
 
                 } else {
 
