@@ -36,9 +36,9 @@
          *
          * @return Transaction
          */
-        public static function createCreditTransaction(Wallet $wallet, float $amount, string $description): Transaction {
+        public static function createCreditTransaction(Wallet $wallet, float $amount, string $description, string $entity="", int $entityid=0): Transaction {
 
-            return TransactionFactory::createTransaction($wallet, $amount, $description, TransactionFactory::TYPE_CREDIT);
+            return TransactionFactory::createTransaction($wallet, $amount, $description, TransactionFactory::TYPE_CREDIT, $entity, $entityid);
 
         }
 
@@ -50,9 +50,9 @@
          *
          * @return Transaction
          */
-        public static function createDebitTransaction(Wallet $wallet, float $amount, string $description): Transaction {
+        public static function createDebitTransaction(Wallet $wallet, float $amount, string $description, string $entity="", int $entityid=0): Transaction {
 
-            return TransactionFactory::createTransaction($wallet, $amount, $description, TransactionFactory::TYPE_DEBIT);
+            return TransactionFactory::createTransaction($wallet, $amount, $description, TransactionFactory::TYPE_DEBIT, $entity, $entityid);
 
         }
 
@@ -120,6 +120,29 @@
             $this->reversed = 1;
             $this->save();
 
+        }
+
+
+        /**
+         * Transaction Exists
+         * 
+         * Checks if transaction exists if entity and entityid are not empty
+         * 
+         * @return bool
+         */
+        public static function transactionExists(string $entity, int $entityid) {
+
+            if($entity!="" && $entityid!=0) {
+
+                $transaction = Transaction::where(['entity'=>$entity, 'entityid'=>$entityid])->first();
+
+                if($transaction != null) {
+                    return true;
+                }
+
+            }
+
+            return false;
         }
 
 

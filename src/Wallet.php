@@ -58,13 +58,23 @@
          *
          * @return TransactionResponse
          */
-        public function credit(float $amount, string $description): TransactionResponse {
+        public function credit(float $amount, string $description, string $entity="", int $entityid=0): TransactionResponse {
 
-            $transaction = Transaction::createCreditTransaction($this, $amount, $description);
+            if(!Transaction::transactionExists($entity, $entityid)) {
 
-            $this->updateBalance($transaction);
+                $transaction = Transaction::createCreditTransaction($this, $amount, $description, $entity, $entityid);
 
-            return new TransactionResponse(true, "Credit Transaction was successful", $transaction);
+                $this->updateBalance($transaction);
+
+                return new TransactionResponse(true, "Credit Transaction was successful", $transaction);
+
+            } else {
+
+                return new TransactionResponse(false, "This transaction exists");
+
+            }
+
+            
 
         }
 
@@ -76,19 +86,27 @@
          *
          * @return TransactionResponse
          */
-        public function debit(float $amount, string $description): TransactionResponse {
+        public function debit(float $amount, string $description, string $entity="", int $entityid=0): TransactionResponse {
 
-            if($this->balance >= $amount) {
+            if(!Transaction::transactionExists($entity, $entityid)) {
 
-                $transaction = Transaction::createDebitTransaction($this, $amount, $description);
+                if($this->balance >= $amount) {
 
-                $this->updateBalance($transaction);
+                    $transaction = Transaction::createDebitTransaction($this, $amount, $description, $entity, $entityid);
 
-                return new TransactionResponse(true, "Debit Transaction was successful", $transaction);
+                    $this->updateBalance($transaction);
+
+                    return new TransactionResponse(true, "Debit Transaction was successful", $transaction);
+
+                } else {
+
+                    return new TransactionResponse(false, "Insufficient wallet balance!");
+
+                }
 
             } else {
 
-                return new TransactionResponse(false, "Insufficient wallet balance!");
+                return new TransactionResponse(false, "This transaction exists");
 
             }
 
