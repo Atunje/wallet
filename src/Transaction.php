@@ -14,6 +14,8 @@
         //table name
         protected $table = "wallet_transactions";
 
+        protected $hidden = ['reversed'];
+
 
         /**
          * Get the wallet that owns the WalletTransaction
@@ -66,21 +68,58 @@
 
             $wallet = $this->wallet();
 
+            $transaction = null;
+
             $new_description = "Transaction reversal of " . $this->description;
 
             if($this->type == TransactionFactory::TYPE_CREDIT) {
 
-                return self::createDebitTransaction($wallet, $this->amount, $new_description);
+                $transaction = self::createDebitTransaction($wallet, $this->amount, $new_description);
 
             } else if($this->type == TransactionFactory::TYPE_DEBIT) {
 
-                return self::createCreditTransaction($wallet, $this->amount, $new_description);
+                $transaction = self::createCreditTransaction($wallet, $this->amount, $new_description);
 
             } else {
 
                 throw new Exception('Invalid transaction type: ' . $this->type);
 
             }
+
+            if($transaction != null) {
+                $this->setReversed();
+            }
+
+            return $transaction;
+
+        }
+
+
+        /**
+         * Is Reversed
+         * 
+         * checks if transaction has been reversed
+         * 
+         * @return bool
+         */
+        public function isReversed() {
+
+            return $this->reversed == 1;
+        }
+
+
+        /**
+         * Reversed
+         * 
+         * updates transaction that it has been reversed
+         * 
+         * @return void
+         */
+        private function setReversed() {
+
+            $this->reversed = 1;
+            $this->save();
+
         }
 
 

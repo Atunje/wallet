@@ -120,11 +120,27 @@
 
             if($this->verifyTransaction($transaction)) {
 
-                $new_transaction = $transaction->reverse();
+                if(!$transaction->isReversed()) {
 
-                $this->updateBalance($new_transaction);
+                    $new_transaction = $transaction->reverse();
 
-                return new TransactionResponse(true, "Transaction was successfully reversed", $new_transaction);
+                    if($new_transaction != null) {
+
+                        $this->updateBalance($new_transaction);
+
+                        return new TransactionResponse(true, "Transaction was successfully reversed", $new_transaction);
+
+                    } else {
+
+                        return new TransactionResponse(false, "There was an error reversing transaction");
+
+                    }
+
+                } else {
+
+                    return new TransactionResponse(false, "Specified Transaction has already been reversed");
+
+                }
 
             } else {
 
