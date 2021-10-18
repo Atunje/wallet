@@ -56,13 +56,17 @@
          *
          * Credits the wallet by creating a credit transaction and updating the wallet balance
          *
+         * @param float $amount - The amount to be credited into the wallet
+         * @param string $description - The narration of the transaction
+         * @param object $entity - The unique entity that is attached to this transaction, could be a payment object
+         *
          * @return TransactionResponse
          */
-        public function credit(float $amount, string $description, string $entity="", int $entityid=0): TransactionResponse {
+        public function credit(float $amount, string $description, object $entity): TransactionResponse {
 
-            if(!Transaction::transactionExists($entity, $entityid)) {
+            if(!Transaction::transactionExists($entity)) {
 
-                $transaction = Transaction::createCreditTransaction($this, $amount, $description, $entity, $entityid);
+                $transaction = Transaction::createCreditTransaction($this, $amount, $description, $entity);
 
                 $this->updateBalance($transaction);
 
@@ -74,8 +78,6 @@
 
             }
 
-            
-
         }
 
 
@@ -84,15 +86,19 @@
          *
          * Debits the wallet by creating a debit transacton and updating the wallet balance
          *
+         * @param float $amount - The amount to be credited into the wallet
+         * @param string $description - The narration of the transaction
+         * @param object $entity - The unique entity that is attached to this transaction, could be a payment object
+         *
          * @return TransactionResponse
          */
-        public function debit(float $amount, string $description, string $entity="", int $entityid=0): TransactionResponse {
+        public function debit(float $amount, string $description, object $entity): TransactionResponse {
 
-            if(!Transaction::transactionExists($entity, $entityid)) {
+            if(!Transaction::transactionExists($entity)) {
 
                 if($this->balance >= $amount) {
 
-                    $transaction = Transaction::createDebitTransaction($this, $amount, $description, $entity, $entityid);
+                    $transaction = Transaction::createDebitTransaction($this, $amount, $description, $entity);
 
                     $this->updateBalance($transaction);
 

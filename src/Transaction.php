@@ -6,6 +6,8 @@
     use Nobelatunje\Wallet\Factories\TransactionFactory;
     use Nobelatunje\Wallet\Wallet;
 
+    use Exception;
+
     class Transaction extends Model {
 
         //disable laravel mass assignment
@@ -15,7 +17,6 @@
         protected $table = "wallet_transactions";
 
         protected $hidden = ['reversed'];
-
 
         /**
          * Get the wallet that owns the WalletTransaction
@@ -36,9 +37,9 @@
          *
          * @return Transaction
          */
-        public static function createCreditTransaction(Wallet $wallet, float $amount, string $description, string $entity="", int $entityid=0): Transaction {
+        public static function createCreditTransaction(Wallet $wallet, float $amount, string $description, object $entity): Transaction {
 
-            return TransactionFactory::createTransaction($wallet, $amount, $description, TransactionFactory::TYPE_CREDIT, $entity, $entityid);
+            return TransactionFactory::createTransaction($wallet, $amount, $description, TransactionFactory::TYPE_CREDIT, $entity);
 
         }
 
@@ -50,9 +51,9 @@
          *
          * @return Transaction
          */
-        public static function createDebitTransaction(Wallet $wallet, float $amount, string $description, string $entity="", int $entityid=0): Transaction {
+        public static function createDebitTransaction(Wallet $wallet, float $amount, string $description, object $entity): Transaction {
 
-            return TransactionFactory::createTransaction($wallet, $amount, $description, TransactionFactory::TYPE_DEBIT, $entity, $entityid);
+            return TransactionFactory::createTransaction($wallet, $amount, $description, TransactionFactory::TYPE_DEBIT, $entity);
 
         }
 
@@ -97,9 +98,9 @@
 
         /**
          * Is Reversed
-         * 
+         *
          * checks if transaction has been reversed
-         * 
+         *
          * @return bool
          */
         public function isReversed() {
@@ -110,9 +111,9 @@
 
         /**
          * Reversed
-         * 
+         *
          * updates transaction that it has been reversed
-         * 
+         *
          * @return void
          */
         private function setReversed() {
@@ -125,19 +126,31 @@
 
         /**
          * Transaction Exists
-         * 
+         *
          * Checks if transaction exists if entity and entityid are not empty
-         * 
+         *
          * @return bool
          */
-        public static function transactionExists(string $entity, int $entityid) {
+        public static function transactionExists(object $entity) {
 
-            if($entity!="" && $entityid!=0) {
+            if(!empty($entity)) {
 
-                $transaction = Transaction::where(['entity'=>$entity, 'entityid'=>$entityid])->first();
+                //get the classname of the object
+                $entity_name = get_class($entity);
 
-                if($transaction != null) {
-                    return true;
+                if(!isset($entity->id)) {
+                    throw new Exception("Could not get unique identifier for the entity to be attached to transaction");
+                } else {
+
+                    //get the id
+                    $entity_id = $entity->id;
+
+                    $transaction = Transaction::where(['entity' => $entity_name, 'entity_id' => $entity_id])->first();
+
+                    if ($transaction != null) {
+                        return true;
+                    }
+
                 }
 
             }

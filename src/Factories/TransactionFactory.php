@@ -23,7 +23,7 @@
          *
          * @return Transaction
          */
-        public static function createTransaction(Wallet $wallet, float $amount, string $description, string $type, string $entity, int $entityid): Transaction {
+        public static function createTransaction(Wallet $wallet, float $amount, string $description, string $type, object $entity): Transaction {
 
             if(self::dbTablesExists() && $wallet->exists()) {
 
@@ -32,8 +32,8 @@
                 $transaction->amount = $amount;
                 $transaction->description = $description;
                 $transaction->reference = self::generateReference();
-                $transaction->entity = $entity;
-                $transaction->entityid = $entityid;
+                $transaction->entity = get_class($entity);;
+                $transaction->entity_id = $entity->id;
 
                 if($type === self::TYPE_CREDIT) {
 
