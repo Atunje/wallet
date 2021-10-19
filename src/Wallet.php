@@ -206,7 +206,7 @@
 
             if($transaction->isValid($this)) {
 
-                if(!$transaction->isReversed()) {
+                if(!$transaction->wasReversed()) {
 
                     $new_transaction = $transaction->reverse($entity);
 

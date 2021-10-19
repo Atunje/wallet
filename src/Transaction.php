@@ -111,9 +111,10 @@
          *
          * @return bool
          */
-        public function isReversed() {
+        public function wasReversed(): bool {
 
             return $this->reversed == 1;
+
         }
 
 
