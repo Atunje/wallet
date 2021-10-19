@@ -3,6 +3,7 @@
     namespace Nobelatunje\Wallet;
 
     use Illuminate\Database\Eloquent\Model;
+    use Illuminate\Database\Eloquent\Relations\HasMany;
     use Illuminate\Database\Eloquent\SoftDeletes;
     use Illuminate\Support\Facades\DB;
 
@@ -57,6 +58,19 @@
 
 
         /**
+         * Transactions
+         *
+         * Get all the transactions of this wallet
+         *
+         * @return HasMany
+         */
+        public function transactions() {
+
+            return $this->hasMany(Transaction::class);
+        }
+
+
+        /**
          * Credit
          *
          * Credits the wallet by creating a credit transaction and updating the wallet balance
@@ -73,9 +87,17 @@
 
                 $transaction = Transaction::createCreditTransaction($this, $amount, $description, $entity);
 
-                $this->updateBalance($transaction);
+                if($transaction != null) {
 
-                return new TransactionResponse(true, "Credit Transaction was successful", $transaction);
+                    $this->updateBalance($transaction);
+
+                    return new TransactionResponse(true, "Credit Transaction was successful", $transaction);
+
+                } else {
+
+                    return new TransactionResponse(false, "There was an error creating this transaction");
+
+                }
 
             } else {
 
@@ -105,9 +127,17 @@
 
                     $transaction = Transaction::createDebitTransaction($this, $amount, $description, $entity);
 
-                    $this->updateBalance($transaction);
+                    if($transaction != null) {
 
-                    return new TransactionResponse(true, "Debit Transaction was successful", $transaction);
+                        $this->updateBalance($transaction);
+
+                        return new TransactionResponse(true, "Debit Transaction was successful", $transaction);
+
+                    } else {
+
+                        return new TransactionResponse(false, "There was an error creating this transaction");
+
+                    }
 
                 } else {
 
@@ -145,13 +175,13 @@
          *
          * @return TransactionResponse
          */
-        public function reverseTransaction(Transaction $transaction): TransactionResponse {
+        public function reverseTransaction(Transaction $transaction, object $entity): TransactionResponse {
 
             if($transaction->isValid($this)) {
 
                 if(!$transaction->isReversed()) {
 
-                    $new_transaction = $transaction->reverse();
+                    $new_transaction = $transaction->reverse($entity);
 
                     if($new_transaction != null) {
 
@@ -212,9 +242,7 @@
 
                 $wallet = self::find($this->id);
 
-                if($wallet != null) {
-                    return true;
-                }
+                return $wallet != null;
             }
 
             return false;

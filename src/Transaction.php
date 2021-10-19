@@ -26,7 +26,7 @@
          */
         public function wallet(): BelongsTo
         {
-            return $this->belongsTo(Wallet::class, 'wallet_id')->first();
+            return $this->belongsTo(Wallet::class, 'wallet_id');
         }
 
 
@@ -66,22 +66,22 @@
          *
          * @return Transaction
          */
-        public function reverse(): Transaction {
+        public function reverse(object $entity): Transaction {
 
-            $wallet = $this->wallet();
+            $wallet = $this->wallet;
 
             $transaction = null;
 
+            //set the description of the transaction
             $new_description = "Transaction reversal of " . $this->description;
-            $empty_entity = (object)[];
 
             if($this->type == TransactionFactory::TYPE_CREDIT) {
 
-                $transaction = self::createDebitTransaction($wallet, $this->amount, $new_description, $empty_entity);
+                $transaction = self::createDebitTransaction($wallet, $this->amount, $new_description, $entity);
 
             } else if($this->type == TransactionFactory::TYPE_DEBIT) {
 
-                $transaction = self::createCreditTransaction($wallet, $this->amount, $new_description, $empty_entity);
+                $transaction = self::createCreditTransaction($wallet, $this->amount, $new_description, $entity);
 
             } else {
 
@@ -90,7 +90,9 @@
             }
 
             if($transaction != null) {
+
                 $this->setReversed();
+
             }
 
             return $transaction;
@@ -116,12 +118,12 @@
          *
          * updates transaction that it has been reversed
          *
-         * @return void
+         * @return bool
          */
-        private function setReversed() {
+        private function setReversed(): bool {
 
             $this->reversed = 1;
-            $this->save();
+            return $this->save();
 
         }
 
@@ -141,7 +143,9 @@
                 $entity_name = get_class($entity);
 
                 if(!isset($entity->id)) {
+
                     throw new Exception("Could not get unique identifier for the entity to be attached to transaction");
+
                 } else {
 
                     //get the id
@@ -149,9 +153,7 @@
 
                     $transaction = Transaction::where(['entity' => $entity_name, 'entity_id' => $entity_id])->first();
 
-                    if ($transaction != null) {
-                        return true;
-                    }
+                    return $transaction != null;
 
                 }
 
@@ -173,6 +175,7 @@
 
                 //check if the transaction truely exists
                 $transaction = self::where(['id' => $this->id, 'wallet_id' => $wallet->id])->first();
+
                 return $transaction != null;
 
             }
