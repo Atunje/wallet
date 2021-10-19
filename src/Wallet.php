@@ -2,8 +2,9 @@
 
     namespace Nobelatunje\Wallet;
 
+    use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+    use Illuminate\Database\Eloquent\Collection;
     use Illuminate\Database\Eloquent\Model;
-    use Illuminate\Database\Eloquent\Relations\HasMany;
     use Illuminate\Database\Eloquent\SoftDeletes;
     use Illuminate\Support\Facades\DB;
 
@@ -62,11 +63,36 @@
          *
          * Get all the transactions of this wallet
          *
-         * @return HasMany
+         * @param bool $paginate
+         * @param string $start_date - if end_date is not set, fetch all transactions created on the start_date
+         * @param string $end_date
+         *
+         * @return LengthAwarePaginator | Collection
          */
-        public function transactions() {
+        public function transactions(bool $paginate = false, string $start_date = null, string $end_date = null) {
 
-            return $this->hasMany(Transaction::class);
+            $transactions = $this->hasMany(Transaction::class)->orderBy('created_at', 'desc');
+
+            if($start_date != null) {
+
+                if($end_date == null) {
+
+                    $transactions->whereDate('created_at', $start_date);
+
+                } else {
+
+                    $transactions->whereDate('created_at', '>=', $start_date)->whereDate('created_at', '<=', $end_date);
+
+                }
+
+            }
+
+            if($paginate) {
+
+                return $transactions->paginate(2);
+            }
+
+            return $transactions->get();
         }
 
 
