@@ -5,7 +5,6 @@
     use Illuminate\Database\Eloquent\Model;
     use Illuminate\Support\Facades\DB;
 
-    use Nobelatunje\Wallet\Factories\WalletFactory;
     use Nobelatunje\Wallet\Transaction;
     use Nobelatunje\Wallet\TransactionResponse;
 
@@ -27,26 +26,29 @@
          *
          * @return Wallet
          */
-        public static function create(int $user_id): Wallet {
+        public static function create(int $user_id, string $name=null): Wallet {
+
+            $wallet = null;
 
             if(self::dbTableExists()) {
 
                 //check if wallet exists
-                $wallet = Wallet::where(['user_id'=>$user_id])->first();
+                $wallet = Wallet::where(['user_id'=>$user_id, 'name'=>$name])->first();
 
                 if($wallet == null) {
 
                     $wallet = new Wallet();
                     $wallet->user_id = $user_id;
+                    $wallet->name = $name;
                     $wallet->balance = 0;
 
                     $wallet->save();
 
                 }
 
-                return $wallet;
-
             }
+
+            return $wallet;
 
         }
 
