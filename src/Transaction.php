@@ -3,6 +3,7 @@
     namespace Nobelatunje\Wallet;
 
     use Illuminate\Database\Eloquent\Model;
+    use Illuminate\Database\Eloquent\Relations\BelongsTo;
     use Nobelatunje\Wallet\Factories\TransactionFactory;
     use Nobelatunje\Wallet\Wallet;
 
@@ -21,9 +22,9 @@
         /**
          * Get the wallet that owns the WalletTransaction
          *
-         * @return Wallet
+         * @return BelongsTo
          */
-        public function wallet(): Wallet
+        public function wallet(): BelongsTo
         {
             return $this->belongsTo(Wallet::class, 'wallet_id')->first();
         }
@@ -72,14 +73,15 @@
             $transaction = null;
 
             $new_description = "Transaction reversal of " . $this->description;
+            $empty_entity = (object)[];
 
             if($this->type == TransactionFactory::TYPE_CREDIT) {
 
-                $transaction = self::createDebitTransaction($wallet, $this->amount, $new_description);
+                $transaction = self::createDebitTransaction($wallet, $this->amount, $new_description, $empty_entity);
 
             } else if($this->type == TransactionFactory::TYPE_DEBIT) {
 
-                $transaction = self::createCreditTransaction($wallet, $this->amount, $new_description);
+                $transaction = self::createCreditTransaction($wallet, $this->amount, $new_description, $empty_entity);
 
             } else {
 
@@ -156,6 +158,27 @@
             }
 
             return false;
+        }
+
+        /**
+         * Is Valid
+         *
+         * checks if a transaction validly belongs to a wallet
+         *
+         * @return bool
+         */
+        public function isValid(Wallet $wallet): bool {
+
+            if(isset($this->id)) {
+
+                //check if the transaction truely exists
+                $transaction = self::where(['id' => $this->id, 'wallet_id' => $wallet->id])->first();
+                return $transaction != null;
+
+            }
+
+            return false;
+
         }
 
 

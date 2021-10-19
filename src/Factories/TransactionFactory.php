@@ -4,8 +4,6 @@
 
     use Nobelatunje\Wallet\Wallet;
     use Nobelatunje\Wallet\Transaction;
-    use Nobelatunje\Wallet\Exceptions\InvalidTransactionTypeException;
-    use Nobelatunje\Wallet\Exceptions\WalletNotFoundException;
     use Illuminate\Support\Facades\DB;
     use Exception;
 
@@ -32,8 +30,11 @@
                 $transaction->amount = $amount;
                 $transaction->description = $description;
                 $transaction->reference = self::generateReference();
-                $transaction->entity = get_class($entity);;
-                $transaction->entity_id = $entity->id;
+
+                if(isset($entity->id)) {
+                    $transaction->entity = get_class($entity);;
+                    $transaction->entity_id = $entity->id;
+                }
 
                 if($type === self::TYPE_CREDIT) {
 
@@ -90,8 +91,7 @@
          *
          * confirms if wallets table exists
          *
-         * @throws TransactionsDBTableNotFoundException
-         * @throws WalletsDBTableNotFoundException
+         * @throws Exception
          *
          * @return bool
          */

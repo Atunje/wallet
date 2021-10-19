@@ -3,6 +3,7 @@
     namespace Nobelatunje\Wallet;
 
     use Illuminate\Database\Eloquent\Model;
+    use Illuminate\Database\Eloquent\SoftDeletes;
     use Illuminate\Support\Facades\DB;
 
     use Nobelatunje\Wallet\Transaction;
@@ -11,6 +12,8 @@
     use Exception;
 
     class Wallet extends Model {
+
+        use SoftDeletes;
 
         //disable laravel mass assignment
         protected $guarded = [];
@@ -144,7 +147,7 @@
          */
         public function reverseTransaction(Transaction $transaction): TransactionResponse {
 
-            if($this->verifyTransaction($transaction)) {
+            if($transaction->isValid($this)) {
 
                 if(!$transaction->isReversed()) {
 
@@ -174,33 +177,6 @@
 
             }
 
-        }
-
-
-        /**
-         * Verify Transaction
-         *
-         * checks if transaction truely exists and belongs to this wallet
-         *
-         * @return bool
-         */
-        private function verifyTransaction(Transaction $transaction): bool {
-
-            //check if the transaction truely exists
-            $transaction = Transaction::find($transaction->id);
-
-            if($transaction!=null) {
-
-                //get the wallet the transaction belongs to
-                $wallet = $transaction->wallet();
-
-                //check if it's the same wallet
-                if($wallet->id == $this->id) {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
 
@@ -243,6 +219,5 @@
 
             return false;
         }
-
 
     }
