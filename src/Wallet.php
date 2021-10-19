@@ -10,12 +10,13 @@
 
     use Nobelatunje\Wallet\Transaction;
     use Nobelatunje\Wallet\TransactionResponse;
+    use Nobelatunje\Wallet\Traits\UsesUuid;
 
     use Exception;
 
     class Wallet extends Model {
 
-        use SoftDeletes;
+        use SoftDeletes, UsesUuid;
 
         //disable laravel mass assignment
         protected $guarded = [];

@@ -4,12 +4,16 @@
 
     use Illuminate\Database\Eloquent\Model;
     use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
     use Nobelatunje\Wallet\Factories\TransactionFactory;
     use Nobelatunje\Wallet\Wallet;
+    use Nobelatunje\Wallet\Traits\UsesUuid;
 
     use Exception;
 
     class Transaction extends Model {
+
+        use UsesUuid;
 
         //disable laravel mass assignment
         protected $guarded = [];
