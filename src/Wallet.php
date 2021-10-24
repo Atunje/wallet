@@ -24,10 +24,17 @@
         //table name
         protected $table = "wallets";
 
-        //set the private properties so wallets will not be illegally created
+        /**
+         * Private Properties
+         *
+         * These properties may be visible but they cannot be set from outside the class
+         * These properties are set to make it impossible to create wallets without using the create method
+         */
         protected array $privateProperties = ['user_id', 'balance'];
 
         /**
+         * set the wallet balance
+         *
          * @throws Exception
          */
         private function setBalance($balance) {
