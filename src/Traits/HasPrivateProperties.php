@@ -7,6 +7,12 @@
     trait HasPrivateProperties {
 
         /**
+         * sets the property of the class
+         * will not set if property is in the privateProperties array
+         *
+         * @param string $key
+         * @param mixed $value
+         *
          * @throws Exception
          */
         public function __set($key, $value) {
@@ -17,12 +23,27 @@
         }
 
         /**
+         * gets class property
+         *
+         * assessable even if property is in the privateProperties array
+         *
+         * @param string $key
+         */
+        public function __get($key) {
+            parent::__get($key);
+        }
+
+        /**
+         * checks if property is in the privateProperties array
+         *
+         * @param string $key
+         *
          * @throws Exception
          */
-        private function isPrivate($key) {
+        private function isPrivate(string $key) {
 
             if(in_array($key, $this->privateProperties)) {
-                throw new Exception("Property " . $key . " of class " . get_class($this) . " is a private property");
+                throw new Exception("Property " . $key . " of class " . get_class($this) . " cannot be set outside the class");
             }
         }
 
