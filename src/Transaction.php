@@ -22,45 +22,29 @@
         //table name
         protected $table = "wallet_transactions";
 
-        protected array $privateProperties = ['wallet_id', 'amount', 'balance', 'type'];
+        //class properties
+
+
+        /**
+         * Private Properties
+         *
+         * These properties may be visible but they cannot be set from outside the class
+         * These properties are set to make it impossible to create transactions without using the create methods
+         */
+        protected array $privateProperties = ['wallet_id'];
 
         private const TYPE_CREDIT = "credit";
         private const TYPE_DEBIT = "debit";
 
-        /**
-         * @throws Exception
-         */
-        private function setBalance($balance) {
-
-            parent::__set("balance", $balance);
-
-        }
 
         /**
+         * set the wallet_id
+         *
          * @throws Exception
          */
         private function setWalletID($wallet_id) {
 
             parent::__set("wallet_id", $wallet_id);
-
-        }
-
-
-        /**
-         * @throws Exception
-         */
-        private function setAmount($amount) {
-
-            parent::__set("amount", $amount);
-
-        }
-
-        /**
-         * @throws Exception
-         */
-        private function setType($type) {
-
-            parent::__set("type", $type);
 
         }
 
@@ -91,24 +75,24 @@
                 $transaction = new self();
                 $transaction->description = $description;
                 $transaction->reference = self::generateReference();
-
-                $transaction->setWalletID($wallet->id);
-                $transaction->setAmount($amount);
+                $transaction->amount = $amount;
 
                 if(isset($entity->id)) {
                     $transaction->entity = get_class($entity);;
                     $transaction->entity_id = $entity->id;
                 }
 
-                $transaction->setType($type);
+                $transaction->type = $type;
+
+                $transaction->setWalletID($wallet->id);
 
                 if($type === self::TYPE_CREDIT) {
 
-                    $transaction->setBalance($wallet->balance + $amount);
+                    $transaction->balance = $wallet->balance + $amount;
 
                 } else if($type === self::TYPE_DEBIT) {
 
-                    $transaction->setBalance($wallet->balance - $amount);
+                    $transaction->balance = $wallet->balance - $amount;
 
                 } else {
 
