@@ -316,6 +316,18 @@
 
         }
 
+        /**
+         * Delete
+         *
+         * make it impossible for transactions to be deleted when delete method is called
+         *
+         * @throws Exception
+         */
+        public function delete() {
+
+            throw new Exception("Transaction cannot be deleted!");
+        }
+
 
 
 
