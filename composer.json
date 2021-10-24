@@ -13,5 +13,7 @@
         "email": "nobelatunje001@gmail.com"
     }],
     "minimum-stability": "dev",
-    "require": {}
+    "require": {
+        "phpunit/phpunit": "9.5.x-dev"
+    }
 }
