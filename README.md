@@ -20,12 +20,12 @@ $wallet = new Wallet($user_id, "Car Savings Wallet");
 
 ### To credit a wallet
 ```php
-Wallet->find(2)->credit(2000, "Payment for order #849494");
+Wallet::find(2)->credit(2000, "Payment for order #849494");
 ```
 
 ### To debit a wallet
 ```php
-Wallet->find(2)->debit(1000, "Purchase of airtime");
+Wallet::find(2)->debit(1000, "Purchase of airtime");
 ```
 
 ### To reverse a transaction
@@ -38,7 +38,7 @@ $wallet->reverseTransaction($transaction);
 
 ### To view wallet transactions
 ```php
-Wallet->find(2)->transactions();
+Wallet::find(2)->transactions();
 ```
 
 ### To retrieve wallets
@@ -48,6 +48,6 @@ Wallet::all();
 
 ### To delete a wallet
 ```php
-Wallet->find(2)->delete();
+Wallet::find(2)->delete();
 ```
 
