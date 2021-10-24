@@ -23,17 +23,6 @@
         }
 
         /**
-         * gets class property
-         *
-         * assessable even if property is in the privateProperties array
-         *
-         * @param string $key
-         */
-        public function __get($key) {
-            parent::__get($key);
-        }
-
-        /**
          * checks if property is in the privateProperties array
          *
          * @param string $key

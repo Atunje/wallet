@@ -310,4 +310,36 @@
             return false;
         }
 
+
+        /**
+         * Delete
+         *
+         * deletes a wallet.
+         * If $force_delete is set to true, the wallet is deleted even though the balance may be greater than 0
+         *
+         * @param bool $force_delete
+         * @return TransactionResponse
+         */
+        public function delete(bool $force_delete=false): TransactionResponse
+        {
+
+            if($this->balance > 0 && !$force_delete) {
+
+                return new TransactionResponse(false, "Wallet cannot be deleted because it is still has a balance of " . number_format($this->balance));
+
+            } else {
+
+                $this->deleted_at = date('Y-m-d H:i:s');
+
+                if($this->save()) {
+
+                    return new TransactionResponse(true, "Wallet was successfully deleted!");
+
+                }
+
+                return new TransactionResponse(false, "There was an error deleting the specified wallet");
+            }
+
+        }
+
     }
