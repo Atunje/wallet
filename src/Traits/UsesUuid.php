@@ -4,8 +4,7 @@
 
     use Illuminate\Support\Str;
 
-    trait UsesUuid
-    {
+    trait UsesUuid {
 
         /**
          * boot

@@ -2,27 +2,47 @@
 
     namespace Nobelatunje\Wallet;
 
+    use Exception;
     use Illuminate\Contracts\Pagination\LengthAwarePaginator;
     use Illuminate\Database\Eloquent\Collection;
     use Illuminate\Database\Eloquent\Model;
     use Illuminate\Database\Eloquent\SoftDeletes;
     use Illuminate\Support\Facades\DB;
 
+    use Nobelatunje\Wallet\Traits\HasPrivateProperties;
     use Nobelatunje\Wallet\Transaction;
     use Nobelatunje\Wallet\TransactionResponse;
     use Nobelatunje\Wallet\Traits\UsesUuid;
 
-    use Exception;
-
     class Wallet extends Model {
 
-        use SoftDeletes, UsesUuid;
+        use SoftDeletes, UsesUuid, HasPrivateProperties;
 
         //disable laravel mass assignment
         protected $guarded = [];
 
         //table name
         protected $table = "wallets";
+
+        //set the private properties so wallets will not be illegally created
+        protected array $privateProperties = ['user_id', 'balance'];
+
+        /**
+         * @throws Exception
+         */
+        private function setBalance($balance) {
+
+            parent::__set("balance", $balance);
+
+        }
+
+        /**
+         * @throws Exception
+         */
+        private function setUserId(string $user_id) {
+
+            parent::__set("user_id", $user_id);
+        }
 
 
         /**
@@ -31,6 +51,7 @@
          * Creates a new wallet
          *
          * @return Wallet
+         * @throws Exception
          */
         public static function create(int $user_id, string $name=null): Wallet {
 
@@ -39,14 +60,14 @@
             if(self::dbTableExists()) {
 
                 //check if wallet exists
-                $wallet = Wallet::where(['user_id'=>$user_id, 'name'=>$name])->first();
+                $wallet = self::where(['user_id'=>$user_id, 'name'=>$name])->first();
 
                 if($wallet == null) {
 
                     $wallet = new Wallet();
-                    $wallet->user_id = $user_id;
+                    $wallet->setUserId($user_id);
+                    $wallet->setBalance(0);
                     $wallet->name = $name;
-                    $wallet->balance = 0;
 
                     $wallet->save();
 
@@ -65,8 +86,8 @@
          * Get all the transactions of this wallet
          *
          * @param bool $paginate
-         * @param string $start_date - if end_date is not set, fetch all transactions created on the start_date
-         * @param string $end_date
+         * @param string|null $start_date - if end_date is not set, fetch all transactions created on the start_date
+         * @param string|null $end_date
          *
          * @return LengthAwarePaginator | Collection
          */
@@ -90,7 +111,7 @@
 
             if($paginate) {
 
-                return $transactions->paginate(2);
+                return $transactions->paginate(50);
             }
 
             return $transactions->get();
@@ -104,11 +125,12 @@
          *
          * @param float $amount - The amount to be credited into the wallet
          * @param string $description - The narration of the transaction
-         * @param object $entity - The unique entity that is attached to this transaction, could be a payment object
+         * @param object|null $entity - The unique entity that is attached to this transaction, could be a payment object
          *
          * @return TransactionResponse
+         * @throws Exception
          */
-        public function credit(float $amount, string $description, object $entity): TransactionResponse {
+        public function credit(float $amount, string $description, object $entity = null): TransactionResponse {
 
             if(!Transaction::transactionExists($entity)) {
 
@@ -142,11 +164,12 @@
          *
          * @param float $amount - The amount to be credited into the wallet
          * @param string $description - The narration of the transaction
-         * @param object $entity - The unique entity that is attached to this transaction, could be a payment object
+         * @param object|null $entity - The unique entity that is attached to this transaction, could be a payment object
          *
          * @return TransactionResponse
+         * @throws Exception
          */
-        public function debit(float $amount, string $description, object $entity): TransactionResponse {
+        public function debit(float $amount, string $description, object $entity = null): TransactionResponse {
 
             if(!Transaction::transactionExists($entity)) {
 
@@ -189,7 +212,7 @@
          */
         private function updateBalance(Transaction $transaction): bool {
 
-            $this->balance = $transaction->balance;
+            $this->setBalance($transaction->balance);
             return $this->save();
 
         }
@@ -200,9 +223,14 @@
          *
          * Reverses a previous transaction
          *
+         * @param Transaction $transaction - the transaction to be reversed
+         * @param object|null $entity - the unique entity to be attached to this transaction
+         *
+         *
          * @return TransactionResponse
+         * @throws Exception
          */
-        public function reverseTransaction(Transaction $transaction, object $entity): TransactionResponse {
+        public function reverseTransaction(Transaction $transaction, object $entity = null): TransactionResponse {
 
             if($transaction->isValid($this)) {
 

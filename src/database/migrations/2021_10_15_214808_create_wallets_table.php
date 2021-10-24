@@ -15,7 +15,7 @@
         {
             Schema::create('wallets', function (Blueprint $table) {
                 $table->uuid('id');
-                $table->string('name');
+                $table->string('name')->nullable(true);
                 $table->string('user_id', 36);
                 $table->decimal('balance');
                 $table->timestamps();
