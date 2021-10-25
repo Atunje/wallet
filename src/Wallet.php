@@ -62,23 +62,19 @@
          */
         public static function create(int $user_id, string $name=null): Wallet {
 
-            $wallet = null;
+            self::dbTableExists();
 
-            if(self::dbTableExists()) {
+            //check if wallet exists
+            $wallet = self::where(['user_id'=>$user_id, 'name'=>$name])->first();
 
-                //check if wallet exists
-                $wallet = self::where(['user_id'=>$user_id, 'name'=>$name])->first();
+            if($wallet == null) {
 
-                if($wallet == null) {
+                $wallet = new Wallet();
+                $wallet->setUserId($user_id);
+                $wallet->setBalance(0);
+                $wallet->name = $name;
 
-                    $wallet = new Wallet();
-                    $wallet->setUserId($user_id);
-                    $wallet->setBalance(0);
-                    $wallet->name = $name;
-
-                    $wallet->save();
-
-                }
+                $wallet->save();
 
             }
 
@@ -118,9 +114,11 @@
 
             if($paginate) {
 
+                //return LengthAwarePaginator
                 return $transactions->paginate(50);
             }
 
+            //return collection
             return $transactions->get();
         }
 
@@ -164,7 +162,9 @@
                 }
 
             } else {
-                return new TransactionResponse(false, "Invalid amount supplied for transaction");
+
+                return new TransactionResponse(false, "Invalid amount supplied!");
+
             }
 
         }
@@ -184,33 +184,41 @@
          */
         public function debit(float $amount, string $description, object $entity = null): TransactionResponse {
 
-            if(!Transaction::transactionExists($entity)) {
+            if($amount > 0) {
 
-                if($this->balance >= $amount) {
+                if (!Transaction::transactionExists($entity)) {
 
-                    $transaction = Transaction::createDebitTransaction($this, $amount, $description, $entity);
+                    if ($this->balance >= $amount) {
 
-                    if($transaction != null) {
+                        $transaction = Transaction::createDebitTransaction($this, $amount, $description, $entity);
 
-                        $this->updateBalance($transaction);
+                        if ($transaction != null) {
 
-                        return new TransactionResponse(true, "Debit Transaction was successful", $transaction);
+                            $this->updateBalance($transaction);
+
+                            return new TransactionResponse(true, "Debit Transaction was successful", $transaction);
+
+                        } else {
+
+                            return new TransactionResponse(false, "There was an error creating this transaction");
+
+                        }
 
                     } else {
 
-                        return new TransactionResponse(false, "There was an error creating this transaction");
+                        return new TransactionResponse(false, "Insufficient wallet balance!");
 
                     }
 
                 } else {
 
-                    return new TransactionResponse(false, "Insufficient wallet balance!");
+                    return new TransactionResponse(false, "This transaction exists");
 
                 }
 
             } else {
 
-                return new TransactionResponse(false, "This transaction exists");
+                return new TransactionResponse(false, "Invalid amount supplied!");
 
             }
 
@@ -284,16 +292,12 @@
          * confirms if wallets table exists
          *
          * @throws Exception
-         *
-         * @return bool
          */
-        private static function dbTableExists(): bool {
+        private static function dbTableExists() {
 
             if(!DB::getSchemaBuilder()->hasTable('wallets')) {
                 throw new Exception('Wallets table does not exist in the database');
             }
-
-            return true;
         }
 
 
@@ -328,8 +332,9 @@
          */
         public function delete(bool $force_delete=false): TransactionResponse {
 
-            if($force_delete==true || $this->balance == 0) {
+            if($force_delete || $this->balance == 0) {
 
+                //soft delete
                 $this->deleted_at = date('Y-m-d H:i:s');
 
                 if($this->save()) {

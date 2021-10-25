@@ -22,9 +22,6 @@
         //table name
         protected $table = "wallet_transactions";
 
-        //class properties
-
-
         /**
          * Private Properties
          *
@@ -70,13 +67,16 @@
          */
         private static function create(Wallet $wallet, float $amount, string $description, string $type, object $entity=null): Transaction {
 
-            if(self::dbTablesExists() && $wallet->exists()) {
+            self::dbTableExists();
+
+            if($wallet->exists()) {
 
                 $transaction = new self();
                 $transaction->description = $description;
                 $transaction->reference = self::generateReference();
                 $transaction->amount = $amount;
 
+                //attach the unique entity associated with this transaction
                 if(isset($entity->id)) {
                     $transaction->entity = get_class($entity);;
                     $transaction->entity_id = $entity->id;
@@ -140,22 +140,14 @@
          * confirms if wallets and transactions table exist
          *
          * @throws Exception
-         *
-         * @return bool
          */
-        private static function dbTablesExists(): bool {
+        private static function dbTableExists() {
 
             if(!DB::getSchemaBuilder()->hasTable('wallet_transactions')) {
 
                 throw new Exception('Transactions table not found in the database');
 
-            } else if(!DB::getSchemaBuilder()->hasTable('wallets')) {
-
-                throw new Exception('Wallets table now found in the database');
-
             }
-
-            return true;
         }
 
 
@@ -261,7 +253,9 @@
         /**
          * Transaction Exists
          *
-         * Checks if transaction exists if entity
+         * Checks if transaction exists by the unique entity supplied
+         *
+         * @param object|null $entity - unique entity to be attached to the transaction
          *
          * @return bool
          * @throws Exception
@@ -269,7 +263,7 @@
         public static function transactionExists(object $entity = null): bool
         {
 
-            if(!empty($entity)) {
+            if($entity!=null) {
 
                 //get the classname of the object
                 $entity_name = get_class($entity);
@@ -297,7 +291,9 @@
         /**
          * Is Valid
          *
-         * checks if a transaction validly belongs to a wallet
+         * checks if a transaction validly exists and belongs to a wallet
+         *
+         * @param Wallet $wallet
          *
          * @return bool
          */
