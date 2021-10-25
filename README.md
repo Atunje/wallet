@@ -2,7 +2,7 @@
 
 A simple laravel package for wallet implementation.
 
-This package can basically be plugged into a laravel project and it will handle wallet transactions.
+This package can basically be plugged into a laravel project and it will handle wallet transactions. It allows for a user to have multiple wallets that can be given different names.
 
 ### How to install
 Install via composer

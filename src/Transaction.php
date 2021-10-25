@@ -197,7 +197,7 @@
          * @return Transaction
          * @throws Exception
          */
-        public function reverse(object $entity): Transaction {
+        public function reverse(object $entity=null): Transaction {
 
             $transaction = null;
 

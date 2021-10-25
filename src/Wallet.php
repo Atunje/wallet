@@ -139,26 +139,32 @@
          */
         public function credit(float $amount, string $description, object $entity = null): TransactionResponse {
 
-            if(!Transaction::transactionExists($entity)) {
+            if($amount > 0) {
 
-                $transaction = Transaction::createCreditTransaction($this, $amount, $description, $entity);
+                if (!Transaction::transactionExists($entity)) {
 
-                if($transaction != null) {
+                    $transaction = Transaction::createCreditTransaction($this, $amount, $description, $entity);
 
-                    $this->updateBalance($transaction);
+                    if ($transaction != null) {
 
-                    return new TransactionResponse(true, "Credit Transaction was successful", $transaction);
+                        $this->updateBalance($transaction);
+
+                        return new TransactionResponse(true, "Credit Transaction was successful", $transaction);
+
+                    } else {
+
+                        return new TransactionResponse(false, "There was an error creating this transaction");
+
+                    }
 
                 } else {
 
-                    return new TransactionResponse(false, "There was an error creating this transaction");
+                    return new TransactionResponse(false, "This transaction exists");
 
                 }
 
             } else {
-
-                return new TransactionResponse(false, "This transaction exists");
-
+                return new TransactionResponse(false, "Invalid amount supplied for transaction");
             }
 
         }
@@ -320,14 +326,9 @@
          * @param bool $force_delete
          * @return TransactionResponse
          */
-        public function delete(bool $force_delete=false): TransactionResponse
-        {
+        public function delete(bool $force_delete=false): TransactionResponse {
 
-            if($this->balance > 0 && !$force_delete) {
-
-                return new TransactionResponse(false, "Wallet cannot be deleted because it is still has a balance of " . number_format($this->balance));
-
-            } else {
+            if($force_delete==true || $this->balance == 0) {
 
                 $this->deleted_at = date('Y-m-d H:i:s');
 
@@ -338,6 +339,11 @@
                 }
 
                 return new TransactionResponse(false, "There was an error deleting the specified wallet");
+
+            } else {
+
+                return new TransactionResponse(false, "Wallet cannot be deleted because it is still has a balance of " . number_format($this->balance));
+
             }
 
         }
