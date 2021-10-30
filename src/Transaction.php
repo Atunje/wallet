@@ -25,7 +25,7 @@
         /**
          * Private Properties
          *
-         * These properties may be visible but they cannot be set from outside the class
+         * These properties may be visible publicly but they cannot be set from outside the class
          * These properties are set to make it impossible to create transactions without using the create methods
          */
         protected array $privateProperties = ['wallet_id'];
@@ -157,6 +157,7 @@
          * Creates a credit transaction and return same
          *
          * @return Transaction
+         * 
          * @throws Exception
          */
         public static function createCreditTransaction(Wallet $wallet, float $amount, string $description, object $entity=null): Transaction {
@@ -172,6 +173,7 @@
          * Creates a debit transaction and return same
          *
          * @return Transaction
+         * 
          * @throws Exception
          */
         public static function createDebitTransaction(Wallet $wallet, float $amount, string $description, object $entity=null): Transaction {
@@ -187,6 +189,7 @@
          * Reverse a transaction by creating a counter transaction
          *
          * @return Transaction
+         * 
          * @throws Exception
          */
         public function reverse(object $entity=null): Transaction {

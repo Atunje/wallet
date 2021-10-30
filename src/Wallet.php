@@ -27,7 +27,7 @@
         /**
          * Private Properties
          *
-         * These properties may be visible but they cannot be set from outside the class
+         * These properties may be visible publicly but they cannot be set from outside the class
          * These properties are set to make it impossible to create wallets without using the create method
          */
         protected array $privateProperties = ['user_id', 'balance'];
@@ -55,7 +55,7 @@
         /**
          * Create
          *
-         * Creates a new wallet
+         * Creates a new wallet or return it if it already exists.
          *
          * @return Wallet
          * @throws Exception
@@ -88,13 +88,13 @@
          *
          * Get all the transactions of this wallet
          *
-         * @param bool $paginate
+         * @param bool $paginate - if true, paginate based on the $limit supplied
          * @param string|null $start_date - if end_date is not set, fetch all transactions created on the start_date
          * @param string|null $end_date
          *
          * @return LengthAwarePaginator | Collection
          */
-        public function transactions(bool $paginate = false, string $start_date = null, string $end_date = null) {
+        public function transactions(bool $paginate = false, string $start_date = null, string $end_date = null, int $limit = 50) {
 
             $transactions = $this->hasMany(Transaction::class)->orderBy('created_at', 'desc');
 
@@ -115,7 +115,7 @@
             if($paginate) {
 
                 //return LengthAwarePaginator
-                return $transactions->paginate(50);
+                return $transactions->paginate($limit);
             }
 
             //return collection
@@ -328,6 +328,7 @@
          * If $force_delete is set to true, the wallet is deleted even though the balance may be greater than 0
          *
          * @param bool $force_delete
+         * 
          * @return TransactionResponse
          */
         public function delete(bool $force_delete=false): TransactionResponse {
