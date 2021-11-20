@@ -15,7 +15,7 @@ Copy the database migrations to your migrations folder and run
 
 ### To create a wallet
 ```php
-$wallet = new Wallet($user_id, "Car Savings Wallet");
+$wallet = Wallet::create($user_id, "Car Savings Wallet");
 ```
 
 ### To credit a wallet
