@@ -24,6 +24,9 @@
         //table name
         protected $table = "wallets";
 
+        //hide some fields
+        protected $hidden = ['user_id', 'updated_at', 'deleted_at'];
+
         /**
          * Private Properties
          *
