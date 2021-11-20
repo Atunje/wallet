@@ -18,14 +18,19 @@ Copy the database migrations to your migrations folder and run
 $wallet = Wallet::create($user_id, "Car Savings Wallet");
 ```
 
+### To get user's wallets
+```php
+$wallet = $this->hasMany(Wallet::class, 'user_id');
+```
+
 ### To credit a wallet
 ```php
-Wallet::find(2)->credit(2000, "Payment for order #849494");
+$wallet->credit(2000, "Payment for order #849494");
 ```
 
 ### To debit a wallet
 ```php
-Wallet::find(2)->debit(1000, "Purchase of airtime");
+$wallet->debit(1000, "Purchase of airtime");
 ```
 
 ### To reverse a transaction
