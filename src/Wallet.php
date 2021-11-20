@@ -60,7 +60,7 @@
          * @return Wallet
          * @throws Exception
          */
-        public static function create(int $user_id, string $name=null): Wallet {
+        public static function create(string $user_id, string $name=null): Wallet {
 
             self::dbTableExists();
 
@@ -328,7 +328,7 @@
          * If $force_delete is set to true, the wallet is deleted even though the balance may be greater than 0
          *
          * @param bool $force_delete
-         * 
+         *
          * @return TransactionResponse
          */
         public function delete(bool $force_delete=false): TransactionResponse {
@@ -348,7 +348,7 @@
 
             } else {
 
-                return new TransactionResponse(false, "Wallet cannot be deleted because it is still has a balance of " . number_format($this->balance));
+                return new TransactionResponse(false, "Wallet cannot be deleted because it still has a balance of " . number_format($this->balance));
 
             }
 
